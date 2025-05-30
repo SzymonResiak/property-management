@@ -29,7 +29,7 @@ aws configure
 # Region: eu-central-1
 ```
 
-**Or create `.env` file:**
+**Or create `.env` file based on .env.example:**
 
 ```bash
 AWS_ACCESS_KEY_ID=your_aws_access_key_here
