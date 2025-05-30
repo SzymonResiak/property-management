@@ -1,0 +1,29 @@
+node_modules
+.env
+
+# AWS
+.serverless/
+.aws-sam/
+
+# Build artifacts
+dist/
+build/
+
+# Compiled JavaScript files
+__tests__/*.js
+src/**/*.js
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo

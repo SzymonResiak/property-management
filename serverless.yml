@@ -1,0 +1,71 @@
+service: property-management
+
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-central-1
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:PutItem
+            - dynamodb:Scan
+          Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.REQUESTS_TABLE_NAME}
+        - Effect: Allow
+          Action:
+            - lambda:InvokeFunction
+          Resource: arn:aws:lambda:${self:provider.region}:*:function:${self:provider.environment.ANALYZE_LAMBDA_NAME}
+  environment:
+    REQUESTS_TABLE_NAME: ${self:service}-requests-table
+    ANALYZE_LAMBDA_NAME: ${self:service}-${opt:stage, 'dev'}-analyze
+
+functions:
+  analyze:
+    handler: src/handlers/analyze.handler
+    events:
+      - http:
+          path: analyze
+          method: post
+          cors: true
+
+  postRequest:
+    handler: src/handlers/postRequest.handler
+    events:
+      - http:
+          path: requests
+          method: post
+          cors: true
+
+  getRequests:
+    handler: src/handlers/getRequests.handler
+    events:
+      - http:
+          path: requests
+          method: get
+          cors: true
+
+resources:
+  Resources:
+    RequestsDynamoDBTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.REQUESTS_TABLE_NAME}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: priority
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: PriorityIndex
+            KeySchema:
+              - AttributeName: priority
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
