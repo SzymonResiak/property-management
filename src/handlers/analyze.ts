@@ -29,15 +29,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       };
     }
 
-    if (message.length > 5000) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          error: 'Message too long (max 5000 characters)',
-        }),
-      };
-    }
-
     const analysis = analyzeMessage(message.trim());
 
     return {
