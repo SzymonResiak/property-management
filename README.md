@@ -8,17 +8,17 @@ The system classifies maintenance requests using keyword matching and point accu
 
 ### Point System
 
-- HIGH keywords: 5 points (emergency situations)
+- HIGH keywords: 8 points (emergency situations)
 - MEDIUM keywords: 2 points (functional issues)
 - LOW keywords: 1 point (cosmetic problems)
 
 ### Classification
 
-Priority is determined by total points divided by 20: (20 would be extreme case which always would be high)
+Priority is determined by total points divided by 13:
 
-- HIGH: score >= 0.6 (12+ points)
-- MEDIUM: score >= 0.3 (6-11 points)
-- LOW: score < 0.3 (under 6 points)
+- HIGH: score >= 0.6
+- MEDIUM: score >= 0.25
+- LOW: score < 0.25
 
 ### Example
 
@@ -26,17 +26,16 @@ Input: "Bathroom pipe burst, water everywhere!"
 
 Found keywords:
 
-- "burst" = 5 points (HIGH)
-- "water" = 5 points (HIGH)
-- "pipe" = 5 points (HIGH)
+- "burst" = 8 points (HIGH)
+- "pipe" = 8 points (HIGH)
 
 Total: 15 points, Score: 0.75, Result: HIGH priority
 
 ### Keywords
 
-HIGH (5 points): leak, flood, burst, sewage, overflow, water, pipe, sparking, power outage, exposed wires, electrical, shock, blackout, electricity, broken window, roof leak, ceiling, collapse, crack, foundation, structural, gas leak, smoke detector, alarm, fire, emergency, dangerous, unsafe, urgent, no heat, frozen pipes, heating, freezing, cold, furnace
+HIGH (8 points): leak, flood, burst, sewage, overflow, water, pipe, sparking, power outage, exposed wires, electrical, shock, blackout, electricity, broken window, roof leak, ceiling, collapse, crack, foundation, structural, gas leak, smoke detector, alarm, fire, emergency, dangerous, unsafe, urgent, no heat, frozen pipes, heating, freezing, cold, furnace
 
-MEDIUM (2 points): broken, appliance, dishwasher, dryer, refrigerator, oven, stove, stuck, jammed, door, window, lock, noisy, loud, rattling, leaking, dripping, clogged
+MEDIUM (2 points): broken, appliance, dishwasher, dryer, refrigerator, oven, stove, stuck, jammed, door, window, lock, noisy, loud, rattling, leaking, dripping, clogged, not working
 
 LOW (1 point): paint, cosmetic, scratch, minor, squeaky, squeak, touch-up, bulb, badly, sink
 
@@ -116,6 +115,6 @@ npm test
 
 Priority logic:
 
-- High (5pts): emergency keywords (leak, burst, gas, power outage)
+- High (8pts): emergency keywords (leak, burst, gas, power outage)
 - Medium (2pts): repair keywords (broken, stuck, noisy)
 - Low (1pt): cosmetic keywords (paint, squeaky)
