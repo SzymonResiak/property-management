@@ -32,8 +32,8 @@ aws configure
 **Or create `.env` file based on .env.example:**
 
 ```bash
-AWS_ACCESS_KEY_ID=your_aws_access_key_here
-AWS_SECRET_ACCESS_KEY=your_aws_secret_key_here
+AWS_ACCESS_KEY_ID=aws_access_key
+AWS_SECRET_ACCESS_KEY=aws_secret_key
 AWS_DEFAULT_REGION=eu-central-1
 
 ```
@@ -146,6 +146,6 @@ npm test
 
 Priority logic:
 
-- High (3pts): emergency keywords (leak, burst, gas, power outage)
+- High (5pts): emergency keywords (leak, burst, gas, power outage)
 - Medium (2pts): repair keywords (broken, stuck, noisy)
 - Low (1pt): cosmetic keywords (paint, squeaky)
