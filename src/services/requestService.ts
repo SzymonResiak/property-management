@@ -3,9 +3,9 @@ import {
   MaintenanceRequestInput,
   MaintenanceRequest,
   Priority,
-} from '../models/types';
-import { analyzeMessage as analyzeMessageService } from './analysisService';
-import * as requestRepository from '../repositories/requestRepository';
+} from '@/models/types';
+import { analyzeMessage as analyzeMessageService } from '@/services/analysisService';
+import * as requestRepository from '@/repositories/requestRepository';
 
 export const saveRequest = async (
   input: MaintenanceRequestInput

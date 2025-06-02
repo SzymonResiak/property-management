@@ -4,7 +4,7 @@ import {
   PutCommand,
   ScanCommand,
 } from '@aws-sdk/lib-dynamodb';
-import { MaintenanceRequest, Priority } from '../models/types';
+import { MaintenanceRequest, Priority } from '@/models/types';
 
 const dynamo = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 

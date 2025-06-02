@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
-import { analyzeMessage } from '../services/analysisService';
+import { analyzeMessage } from '@/services/analysisService';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   try {

@@ -1,12 +1,22 @@
-import { Priority, AnalyzedFactors, KeywordData } from '../models/types';
-import { KEYWORDS, PRIORITY_WEIGHTS } from '../models/constants';
+import { Priority, AnalyzedFactors, KeywordData } from '@/models/types';
+import { KEYWORDS, PRIORITY_WEIGHTS } from '@/models/constants';
 
-// Build lookup structures for keyword matching
+const NORMALIZE_TEXT_REGEX = /[^\w\s-]/g;
+
+const SCORE_DIVIDER = 13.0;
+const HIGH_PRIORITY_THRESHOLD = 0.6;
+const MEDIUM_PRIORITY_THRESHOLD = 0.25;
+
+const PRIORITY_THRESHOLDS_MAP: { threshold: number; priority: Priority }[] = [
+  { threshold: HIGH_PRIORITY_THRESHOLD, priority: 'high' },
+  { threshold: MEDIUM_PRIORITY_THRESHOLD, priority: 'medium' },
+];
+
 const singleWordMap = new Map<string, KeywordData>();
 const multiWordPhrases = new Map<string, KeywordData>();
 
-Object.entries(KEYWORDS).forEach(([priority, keywords]) => {
-  const priorityKey = priority as Priority;
+(Object.keys(KEYWORDS) as Priority[]).forEach((priorityKey) => {
+  const keywords = KEYWORDS[priorityKey];
   const weight = PRIORITY_WEIGHTS[priorityKey];
 
   keywords.forEach((keyword) => {
@@ -29,29 +39,27 @@ Object.entries(KEYWORDS).forEach(([priority, keywords]) => {
 export function analyzeMessage(message: string): AnalyzedFactors {
   const lowerMessage = message.toLowerCase();
   const words = lowerMessage
-    .replace(/[^\w\s-]/g, ' ')
+    .replace(NORMALIZE_TEXT_REGEX, ' ')
     .split(/\s+/)
     .filter((word) => word.length > 0);
 
-  const wordSet = new Set(words);
+  const uniqueMessageWords = new Set(words);
   const foundKeywords: string[] = [];
   let totalPoints = 0;
-  const usedWords = new Set<string>(); // Track words used in multi-word phrases
+  const processedPhraseWords = new Set<string>();
 
   // Check multi-word phrases
   for (const [phrase, { weight }] of multiWordPhrases) {
     if (lowerMessage.includes(phrase)) {
       foundKeywords.push(phrase);
       totalPoints += weight;
-
-      // Mark words from this phrase as used
-      phrase.split(' ').forEach((word) => usedWords.add(word));
+      phrase.split(' ').forEach((word) => processedPhraseWords.add(word));
     }
   }
 
-  // Check single words (skip if already used in multi-word phrase)
-  for (const word of wordSet) {
-    if (!usedWords.has(word)) {
+  // Check single words
+  for (const word of uniqueMessageWords) {
+    if (!processedPhraseWords.has(word)) {
       const keywordData = singleWordMap.get(word);
       if (keywordData) {
         foundKeywords.push(word);
@@ -63,19 +71,20 @@ export function analyzeMessage(message: string): AnalyzedFactors {
   const priorityScore =
     totalPoints === 0
       ? 0
-      : Math.min(Math.round((totalPoints / 13.0) * 100) / 100, 1.0);
+      : Math.min(Math.round((totalPoints / SCORE_DIVIDER) * 100) / 100, 1.0);
 
-  let priority: Priority = 'low';
-  if (priorityScore >= 0.6) {
-    priority = 'high';
-  } else if (priorityScore >= 0.25) {
-    priority = 'medium';
+  let determinedPriority: Priority = 'low';
+  for (const mapping of PRIORITY_THRESHOLDS_MAP) {
+    if (priorityScore >= mapping.threshold) {
+      determinedPriority = mapping.priority;
+      break;
+    }
   }
 
   return {
     keywords: foundKeywords,
     urgencyIndicators: foundKeywords.length,
     priorityScore,
-    priority,
+    priority: determinedPriority,
   };
 }

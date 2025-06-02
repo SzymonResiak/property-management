@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
-import { getRequests } from '../services/requestService';
-import { Priority } from '../models/types';
+import { getRequests } from '@/services/requestService';
+import { Priority } from '@/models/types';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   try {
