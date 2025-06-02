@@ -83,7 +83,7 @@ export function analyzeMessage(message: string): AnalyzedFactors {
 
   return {
     keywords: foundKeywords,
-    urgencyIndicators: totalPoints,
+    urgencyIndicators: foundKeywords.length,
     priorityScore,
     priority,
   };
