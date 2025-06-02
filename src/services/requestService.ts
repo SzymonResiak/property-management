@@ -3,18 +3,21 @@ import {
   MaintenanceRequestInput,
   MaintenanceRequest,
   Priority,
+  GetRequestListOutputDTO,
+  CreateRequestOutputDTO,
+  AnalyzedFactors,
 } from '@/models/types';
 import { analyzeMessage as analyzeMessageService } from '@/services/analysisService';
 import * as requestRepository from '@/repositories/requestRepository';
 
 export const saveRequest = async (
   input: MaintenanceRequestInput
-): Promise<MaintenanceRequest> => {
+): Promise<CreateRequestOutputDTO> => {
   const id = uuidv4();
 
-  const analysis = analyzeMessageService(input.message);
+  const analysis: AnalyzedFactors = analyzeMessageService(input.message);
 
-  const request: Omit<MaintenanceRequest, 'createdAt'> = {
+  const requestToSave: Omit<MaintenanceRequest, 'createdAt'> = {
     id,
     tenantId: input.tenantId,
     message: input.message,
@@ -23,15 +26,37 @@ export const saveRequest = async (
     resolved: false,
   };
 
-  return await requestRepository.createRequest(request);
+  const savedRequest = await requestRepository.createRequest(requestToSave);
+
+  return {
+    requestId: savedRequest.id,
+    priority: savedRequest.priority,
+    analyzedFactors: savedRequest.analyzedFactors,
+  };
+};
+
+const mapRequestToOutputDTO = (
+  request: MaintenanceRequest
+): GetRequestListOutputDTO => {
+  return {
+    id: request.id,
+    priority: request.priority,
+    message: request.message,
+    createdAt: request.createdAt,
+    resolved: request.resolved,
+  };
 };
 
 export const getRequests = async (
   priority?: Priority
-): Promise<MaintenanceRequest[]> => {
+): Promise<GetRequestListOutputDTO[]> => {
+  let requests: MaintenanceRequest[];
+
   if (priority) {
-    return await requestRepository.getRequestsByPriority(priority);
+    requests = await requestRepository.getRequestsByPriority(priority);
+  } else {
+    requests = await requestRepository.getAllRequests();
   }
 
-  return await requestRepository.getAllRequests();
+  return requests.map(mapRequestToOutputDTO);
 };

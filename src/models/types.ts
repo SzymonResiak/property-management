@@ -24,3 +24,17 @@ export interface MaintenanceRequest extends MaintenanceRequestInput {
   analyzedFactors: AnalyzedFactors;
   resolved: boolean;
 }
+
+export interface GetRequestListOutputDTO {
+  id: string;
+  priority: Priority;
+  message: string;
+  createdAt: string;
+  resolved: boolean;
+}
+
+export interface CreateRequestOutputDTO {
+  requestId: string;
+  priority: Priority;
+  analyzedFactors: AnalyzedFactors;
+}
