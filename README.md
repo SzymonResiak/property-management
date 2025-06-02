@@ -22,14 +22,13 @@ Priority is determined by total points divided by 13:
 
 ### Example
 
-Input: "Bathroom pipe burst, water everywhere!"
+Input: "Bathroom water burst, its everywhere!"
 
 Found keywords:
 
 - "burst" = 8 points (HIGH)
-- "pipe" = 8 points (HIGH)
 
-Total: 15 points, Score: 0.75, Result: HIGH priority
+Total: 8 points, Score: 0.61, Result: HIGH priority
 
 ### Keywords
 

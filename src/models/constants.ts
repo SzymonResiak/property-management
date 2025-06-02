@@ -7,7 +7,6 @@ export const KEYWORDS = {
     'sewage',
     'overflow',
     'overflowing',
-    'water',
     'pipe',
 
     // Electrical
