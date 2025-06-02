@@ -89,7 +89,7 @@ export const KEYWORDS = {
 } as const;
 
 export const PRIORITY_WEIGHTS = {
-  high: 5,
+  high: 8,
   medium: 2,
   low: 1,
 } as const;

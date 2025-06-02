@@ -44,32 +44,40 @@ export function analyzeMessage(message: string): AnalyzedFactors {
   const wordSet = new Set(words);
   const foundKeywords: string[] = [];
   let totalPoints = 0;
-
-  // Check single words
-  for (const word of wordSet) {
-    const keywordData = singleWordMap.get(word);
-    if (keywordData) {
-      foundKeywords.push(word);
-      totalPoints += keywordData.weight;
-    }
-  }
+  const usedWords = new Set<string>(); // Track words used in multi-word phrases
 
   // Check multi-word phrases
   for (const [phrase, { weight }] of multiWordPhrases) {
     if (lowerMessage.includes(phrase)) {
       foundKeywords.push(phrase);
       totalPoints += weight;
+
+      // Mark words from this phrase as used
+      phrase.split(' ').forEach((word) => usedWords.add(word));
+    }
+  }
+
+  // Check single words (skip if already used in multi-word phrase)
+  for (const word of wordSet) {
+    if (!usedWords.has(word)) {
+      const keywordData = singleWordMap.get(word);
+      if (keywordData) {
+        foundKeywords.push(word);
+        totalPoints += keywordData.weight;
+      }
     }
   }
 
   // Calculate priorityScore
   const priorityScore =
-    totalPoints === 0 ? 0 : Math.round((totalPoints / 20.0) * 100) / 100;
+    totalPoints === 0
+      ? 0
+      : Math.min(Math.round((totalPoints / 12.0) * 100) / 100, 1.0);
 
   let priority: Priority = 'low';
   if (priorityScore >= 0.6) {
     priority = 'high';
-  } else if (priorityScore >= 0.3) {
+  } else if (priorityScore >= 0.2) {
     priority = 'medium';
   }
 
