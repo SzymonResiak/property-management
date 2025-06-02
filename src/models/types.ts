@@ -9,6 +9,12 @@ export interface AnalyzedFactors {
   keywords: string[];
   urgencyIndicators: number;
   priorityScore: number;
+  priority: Priority;
+}
+
+export interface KeywordData {
+  priority: Priority;
+  weight: number;
 }
 
 export interface MaintenanceRequest extends MaintenanceRequestInput {
