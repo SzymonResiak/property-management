@@ -1,14 +1,6 @@
 import { Priority, AnalyzedFactors, KeywordData } from '../models/types';
 import { KEYWORDS, PRIORITY_WEIGHTS } from '../models/constants';
 
-/**
- * Analyzes maintenance messages to determine priority using keyword matching.
- *
- * Single words get O(1) Map lookup, multi-word phrases are checked against the full message text.
- *
- * O(words + phrases×message_length)
- */
-
 // Build lookup structures for keyword matching
 const singleWordMap = new Map<string, KeywordData>();
 const multiWordPhrases = new Map<string, KeywordData>();
@@ -68,7 +60,6 @@ export function analyzeMessage(message: string): AnalyzedFactors {
     }
   }
 
-  // Calculate priorityScore
   const priorityScore =
     totalPoints === 0
       ? 0
