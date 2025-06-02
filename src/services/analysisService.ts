@@ -1,83 +1,81 @@
-import { Priority } from '../models/types';
+import { Priority, AnalyzedFactors, KeywordData } from '../models/types';
 import { KEYWORDS, PRIORITY_WEIGHTS } from '../models/constants';
 
-interface AnalysisResult {
-  keywords: string[];
-  urgencyIndicators: number;
-  priorityScore: number;
-  priority: Priority;
-}
+/**
+ * Analyzes maintenance messages to determine priority using keyword matching.
+ *
+ * Single words get O(1) Map lookup, multi-word phrases are checked against the full message text.
+ *
+ * O(words + phrases×message_length)
+ */
 
-// Map for fast keyword lookup
-const createKeywordMap = () => {
-  const map = new Map<
-    string,
-    { priority: keyof typeof KEYWORDS; weight: number }
-  >();
+// Build lookup structures for keyword matching
+const singleWordMap = new Map<string, KeywordData>();
+const multiWordPhrases = new Map<string, KeywordData>();
 
-  Object.entries(KEYWORDS).forEach(([priority, keywords]) => {
-    const priorityKey = priority as keyof typeof KEYWORDS;
-    keywords.forEach((keyword) => {
-      map.set(keyword.toLowerCase(), {
+Object.entries(KEYWORDS).forEach(([priority, keywords]) => {
+  const priorityKey = priority as Priority;
+  const weight = PRIORITY_WEIGHTS[priorityKey];
+
+  keywords.forEach((keyword) => {
+    const lowerKeyword = keyword.toLowerCase();
+
+    if (lowerKeyword.includes(' ')) {
+      multiWordPhrases.set(lowerKeyword, {
         priority: priorityKey,
-        weight: PRIORITY_WEIGHTS[priorityKey],
+        weight,
       });
-    });
+    } else {
+      singleWordMap.set(lowerKeyword, {
+        priority: priorityKey,
+        weight,
+      });
+    }
   });
+});
 
-  return map;
-};
-
-const KEYWORD_MAP = createKeywordMap();
-
-// Tokenize to avoid "leak" vs "leaking" conflicts
-export function analyzeMessage(message: string): AnalysisResult {
+export function analyzeMessage(message: string): AnalyzedFactors {
   const lowerMessage = message.toLowerCase();
-  const foundKeywords: string[] = [];
-  const priorityCounts = { high: 0, medium: 0, low: 0 };
-  let urgencyIndicators = 0;
-
   const words = lowerMessage
-    .replace(/[^\w\s-]/g, ' ') // some words have dashes "touch-up"
+    .replace(/[^\w\s-]/g, ' ')
     .split(/\s+/)
     .filter((word) => word.length > 0);
 
-  for (const [keyword, data] of KEYWORD_MAP) {
-    if (keyword.includes(' ')) {
-      if (lowerMessage.includes(keyword)) {
-        foundKeywords.push(keyword);
-        priorityCounts[data.priority]++;
-        urgencyIndicators += data.weight;
-      }
-    } else {
-      if (words.includes(keyword)) {
-        foundKeywords.push(keyword);
-        priorityCounts[data.priority]++;
-        urgencyIndicators += data.weight;
-      }
+  const wordSet = new Set(words);
+  const foundKeywords: string[] = [];
+  let totalPoints = 0;
+
+  // Check single words
+  for (const word of wordSet) {
+    const keywordData = singleWordMap.get(word);
+    if (keywordData) {
+      foundKeywords.push(word);
+      totalPoints += keywordData.weight;
     }
   }
 
-  const maxScore = Object.entries(KEYWORDS).reduce(
-    (total, [priority, keywords]) => {
-      const priorityKey = priority as keyof typeof KEYWORDS;
-      return total + keywords.length * PRIORITY_WEIGHTS[priorityKey];
-    },
-    0
-  );
+  // Check multi-word phrases
+  for (const [phrase, { weight }] of multiWordPhrases) {
+    if (lowerMessage.includes(phrase)) {
+      foundKeywords.push(phrase);
+      totalPoints += weight;
+    }
+  }
 
-  const priorityScore = Math.min(1, urgencyIndicators / maxScore);
+  // Calculate priorityScore
+  const priorityScore =
+    totalPoints === 0 ? 0 : Math.round((totalPoints / 20.0) * 100) / 100;
 
   let priority: Priority = 'low';
-  if (priorityCounts.high > 0) {
+  if (priorityScore >= 0.6) {
     priority = 'high';
-  } else if (priorityCounts.medium > 0) {
+  } else if (priorityScore >= 0.3) {
     priority = 'medium';
   }
 
   return {
     keywords: foundKeywords,
-    urgencyIndicators,
+    urgencyIndicators: totalPoints,
     priorityScore,
     priority,
   };

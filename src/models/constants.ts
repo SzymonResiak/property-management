@@ -7,6 +7,8 @@ export const KEYWORDS = {
     'sewage',
     'overflow',
     'overflowing',
+    'water',
+    'pipe',
 
     // Electrical
     'sparking',
@@ -15,6 +17,7 @@ export const KEYWORDS = {
     'electrical',
     'shock',
     'blackout',
+    'electricity',
 
     // Structure
     'broken window',
@@ -33,6 +36,7 @@ export const KEYWORDS = {
     'emergency',
     'dangerous',
     'unsafe',
+    'urgent',
 
     // Heating
     'no heat',
@@ -79,11 +83,13 @@ export const KEYWORDS = {
     'squeak',
     'touch-up',
     'bulb',
+    'badly',
+    'sink',
   ],
 } as const;
 
 export const PRIORITY_WEIGHTS = {
-  high: 3,
+  high: 5,
   medium: 2,
   low: 1,
 } as const;
