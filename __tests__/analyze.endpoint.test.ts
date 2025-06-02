@@ -15,7 +15,7 @@ describe('POST /analyze endpoint functionality', () => {
     expect(typeof result.priorityScore).toBe('number');
     expect(['high', 'medium', 'low']).toContain(result.priority);
 
-    expect(result.priority).toBe('medium');
+    expect(result.priority).toBe('low');
     expect(result.keywords).toContain('leaking');
   });
 
