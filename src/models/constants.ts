@@ -71,6 +71,7 @@ export const KEYWORDS = {
     'leaking',
     'dripping',
     'clogged',
+    'not working',
   ],
 
   low: [
