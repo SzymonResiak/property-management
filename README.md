@@ -63,11 +63,11 @@ aws configure
 # Region: eu-central-1
 ```
 
-Or create `.env`:
+**Or create `.env` file based on .env.example:**
 
-```
-AWS_ACCESS_KEY_ID=your_key
-AWS_SECRET_ACCESS_KEY=your_secret
+```bash
+AWS_ACCESS_KEY_ID=your_aws_access_key_here
+AWS_SECRET_ACCESS_KEY=your_aws_secret_key_here
 AWS_DEFAULT_REGION=eu-central-1
 ```
 
