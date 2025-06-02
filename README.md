@@ -111,9 +111,3 @@ GET /requests?priority=high
 ```bash
 npm test
 ```
-
-Priority logic:
-
-- High (8pts): emergency keywords (leak, burst, gas, power outage)
-- Medium (2pts): repair keywords (broken, stuck, noisy)
-- Low (1pt): cosmetic keywords (paint, squeaky)
