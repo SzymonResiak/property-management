@@ -10,36 +10,56 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       };
     }
 
-    const body = JSON.parse(event.body);
+    let parsedBody;
+    try {
+      parsedBody = JSON.parse(event.body);
+    } catch {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Invalid JSON format' }),
+      };
+    }
 
-    if (!body.tenantId || !body.message) {
+    if (!parsedBody.tenantId || typeof parsedBody.tenantId !== 'string') {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'tenantId must be a non-empty string' }),
+      };
+    }
+
+    if (!parsedBody.message || typeof parsedBody.message !== 'string') {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'message must be a non-empty string' }),
+      };
+    }
+
+    if (parsedBody.message.length > 5000) {
       return {
         statusCode: 400,
         body: JSON.stringify({
-          error: 'tenantId and message are required',
+          error: 'Message too long (max 5000 characters)',
         }),
       };
     }
 
-    /* In given documentation timestamp was marked as required:
-    Request: { tenantId: string, message: string, timestamp: string }
-    but in my opinion it could be easily manipulated by the client, so I decided to add server timestamp as "createdAt" based on given response example for: GET /requests.
-    */
-    const requestWithTimestamp = {
-      ...body,
-      createdAt: new Date().toISOString(),
-    };
+    const request = await saveRequest({
+      tenantId: parsedBody.tenantId.trim(),
+      message: parsedBody.message.trim(),
+    });
 
-    const request = await saveRequest(requestWithTimestamp);
     return {
       statusCode: 201,
       body: JSON.stringify(request),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     };
   } catch (err) {
-    console.error('Error saving request:', err);
+    console.error('Unexpected error in postRequest handler:', err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal Server Error' }),
+      body: JSON.stringify({ error: 'Internal server error' }),
     };
   }
 };
