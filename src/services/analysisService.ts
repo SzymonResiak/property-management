@@ -72,12 +72,12 @@ export function analyzeMessage(message: string): AnalyzedFactors {
   const priorityScore =
     totalPoints === 0
       ? 0
-      : Math.min(Math.round((totalPoints / 12.0) * 100) / 100, 1.0);
+      : Math.min(Math.round((totalPoints / 13.0) * 100) / 100, 1.0);
 
   let priority: Priority = 'low';
   if (priorityScore >= 0.6) {
     priority = 'high';
-  } else if (priorityScore >= 0.2) {
+  } else if (priorityScore >= 0.25) {
     priority = 'medium';
   }
 
